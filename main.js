@@ -4,7 +4,7 @@ var fs = require('fs');
 const GantiJSONString = require('replace-json-property');
 let MathSolver = require('math.solver');
 const Calculator = new MathSolver.Calculator;
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageEmbed } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const bulan = new Date();
 const lineReader = require('line-reader');
@@ -68,7 +68,7 @@ function saveLimit(userid, howmuch) { // Give RPS Limit
 
 function DoAPayment(price) { // Price is, the ITEMS price
     const { money } = require(databasePath)
-    if(money >= price) {
+    if(money >= price || money == price) {
         return true // Succes
     } else {
         return false // Failed
@@ -84,8 +84,26 @@ function DoAPayment(price) { // Price is, the ITEMS price
             return;
         }
         // The users has registered so. lets give them command
-            if(command == "hi") {
-                message.reply("this your first command!...")
+            if(command == "help") {
+            message.channel.send("generating command... 3 second please...")
+            setTimeout( function(waitAndSend) {
+            var ownercommand = ""
+            if(isOwner(message.author.id)) {
+                ownercommand += `\n\n**OWNER**\n${prefix}ban\n${prefix}unban\n${prefix}unregisterperson`
+            }
+                const exampleEmbed = new MessageEmbed()
+                .setTitle(`${client.user.tag} Bot`)
+                .setDescription(`**Users**
+${prefix}help
+${prefix}store
+${prefix}rps
+${prefix}unregister
+${prefix}inventory
+${ownercommand}`)
+                .setFooter("More command will be updated soon!");
+            
+            message.reply({ embeds: [exampleEmbed] });
+            }, 3000)
             } else {
                 if(command == "unregister") {
                     fs.unlinkSync(databasePath);
@@ -102,7 +120,7 @@ function DoAPayment(price) { // Price is, the ITEMS price
                       }
                    } else {
                 if(command == "unregisterperson") {
-                    if(message.author.id == owner || message.author.id == haspermission) {
+                    if(message.author.id == owner) {
                     const thePerson = args[0]
                     if(!thePerson) { // the Blank Message
                         message.reply(`idk whos thats, ${prefix}unregisterperson <author id>`)
@@ -258,11 +276,19 @@ message.reply(storeText)
                             const person = args[0]
                             const reason = args[1]
                             const reasonWrite = args.slice(1).join(' ');
+                            if(!reasonWrite) {
+                                message.reply("write the reason!")
+                            }
                             if(!reason) {
                                 message.reply(`usage ${prefix}ban 999999 cheating`)
+                                return;
                             }
                             if(isthatLetter(person) == true) {
                                 message.reply("please send the userid! not a username")
+                                return;
+                            }
+                            if(person == owner) { // if he are the owner
+                                message.reply("you cant banned yourself!")
                                 return;
                             }
                             const contentTowrite = `{ "reason": "${reasonWrite}" }`
@@ -291,6 +317,90 @@ message.reply(storeText)
                                 user.send(`you have been unbanned from this bot!`);
                             });
                             message.reply(`${person} has unbanned from this bot!`)
+                            } else {
+                            if(command == "wheel" || "roulette") {
+                                const { money } = require(databasePath)
+                                if(!DoAPayment('100000')) {
+                                    message.reply("your money is not enough to spun the wheel!")
+                                    return;
+                                }
+                                const ready = args[0]
+                                if(!ready) {
+                                    const exampleEmbed = new MessageEmbed()
+                                    .setTitle(`Wheel Spinner!`)
+                                    .setDescription(`**Prize List**
+- If you get : 18, 36, 54, 23, 8
+You will get 300000 (300K)
+
+- If you get : 13, 1, 15, 30, 39
+You will get 350000 (350000)
+
+But if you did not get all number at above, youll lost 100000 (100K)
+The number is random. between 0 - 60
+
+**To play this use ${prefix}wheel go**`)
+                                    .setFooter("Roulette system")
+                                
+                                message.reply({ embeds: [exampleEmbed] });
+                                return;
+                                }
+                            if(ready == "go") {
+                             try {
+                            message.reply("Please wait... spinning the wheel...")
+                            setTimeout( function(waitAndSpun) {
+                                const realwheel = between(0, 60) // Spun
+
+                                function get300K() {
+                                    message.reply(`The wheel is spun! and you get **${realwheel}** congrats! you get **300000** (300K)`)
+                                    const replaceTheyMoney = Calculator.add(money, 300000)
+                                    GantiJSONString.replace(databasePath, 'money', replaceTheyMoney)
+                                }
+
+                                function get350K() {
+                                    message.reply(`The wheel is spun! and you get **${realwheel}** congrats! you get **350000** (350K)`)
+                                    const replaceTheyMoney = Calculator.add(money, 350000)
+                                    GantiJSONString.replace(databasePath, 'money', replaceTheyMoney)
+                                }
+
+                                // Play it
+                                if(realwheel == '18' || realwheel == '36' || realwheel == '54' || realwheel == '23' || realwheel == '8') {
+                                    get300K() // send the function
+                                    return;
+                                } else {
+                                if(realwheel == '13' || realwheel == '1' || realwheel == '15' || realwheel == '30' || realwheel == '39') {
+                                    get350K() // send the function
+                                    return;
+                                } else {
+                                // if they get other number
+                                message.reply(`Not your luck! you just spun the wheel and get ${realwheel}, your money increased 100k!`)
+                                const replaceTheyMoney = Calculator.substract(money, 100000)
+                                GantiJSONString.replace(databasePath, 'money', replaceTheyMoney)
+                                }
+                                }
+                            }, 3000)
+                            } catch(e) {
+                                message.reply("get some error!")
+                                return;
+                            }
+                            } else {
+                            const exampleEmbed = new MessageEmbed()
+                            .setTitle(`Wheel Spinner!`)
+                            .setDescription(`**Prize List**
+- If you get : 18, 36, 54, 23, 8
+You will get 300000 (300K)
+
+- If you get : 13, 1, 15, 30, 39
+You will get 350000 (350000)
+
+But if you did not get all number at above, youll lost 100000 (100K)
+The number is random. between 0 - 60
+
+**To play this use ${prefix}wheel go**`)
+                            .setFooter("Roulette system")
+                            
+                            message.reply({ embeds: [exampleEmbed] });
+                            }
+                            }
                             }
                             }
                         }
