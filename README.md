@@ -1,8 +1,7 @@
 # Economy Bot ( with Register System )
-A Discord.js economy bot without any database module needed. only saved on your pc's
-
-# Installations
-- npm install
+- A Discord.js economy bot without any database module needed. only saved on your pc's
+- > Installtation
+- npm install // npm i
 
 # Commands
 > Player (User)
@@ -29,8 +28,21 @@ A Discord.js economy bot without any database module needed. only saved on your 
 }
 ```
 
+# Starter Pack Edit
+- Look at ```configuration/starterpack``` and edit them whenever you want,
+- For what is this?
+- if the bot get new user, they'll get money & items like this (below/down)
+```json
+{
+    "NOTED": "THIS CONFIGURATION IS FOR A NEW USER WHO HAS REGISTERED IN YOUR BOT",
+    "money": 10000,
+    "rpsLimit": 3,
+    "gambleLimit": 3
+}
+```
+
 # Store Modif
-- See at ```main.js``` line **234** then you can add your items there
+- See at ```main.js``` line **234** then you can add your items there, and set your price at [here](https://github.com/FrenzY8/Simple-Economy-Bot/blob/main/configuration/storeprice.json)
 ```js
 // Next store (you can create your own)
 if(buywhat == "ITEMS/ASSETSNAME" || buywhat == "ITEMS/ASSETSNAME" || buywhat == "ITEMS/ASSETSNAME") {
