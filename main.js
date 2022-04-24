@@ -66,6 +66,32 @@ function saveLimit(userid, howmuch) { // Give RPS Limit
     GantiJSONString.replace(`./database/${user}.json`, 'rpsLimit', howmuch)
 }
 
+function writeError(text) {
+    if(!fs.existsSync(`./logs/all.txt`)) {
+        fs.writeFileSync(`./logs/all.txt`, '1')
+        setTimeout( function(waitAndwrite) {
+            fs.appendFileSync(`./logs/all.txt`, text)
+        }, 2000)
+        return;
+    }
+    fs.appendFileSync(`./logs/all.txt`, text)
+    console.log("error log writed")
+}
+
+function sendMoney(uid, howmuch) {
+    if(!fs.existsSync(`./database/${uid}.json`)) {
+    console.log("Not found the player!")
+    message.reply("Player not found!")
+    }
+    if(isthatLetter(howmuch) == true) {
+        console.log("Invalid userid!")
+        return;
+    }
+    const { money } = require(databasePath)
+    const givethemoney = Calculator.add(money, howmuch)
+    GantiJSONString.replace(`./database/${uid}.json`, 'money', givethemoney) // Succes!
+}
+
 function DoAPayment(price) { // Price is, the ITEMS price
     const { money } = require(databasePath)
     if(money >= price || money == price) {
@@ -268,6 +294,24 @@ message.reply(storeText)
                                 }    
                             }
                         } else {
+                            if(command == "addmoney") {
+                                if(isOwner(message.author.id) == false) {
+                                    message.reply("Youre not this bot owner")
+                                    return;
+                                }
+                            const person = args[0]
+                            const howmuch = args[1]
+                            if(!person || isthatLetter(person) == true) {
+                                message.reply("Failed to givein! make sure use user id! not a username!")
+                                return;
+                            }
+                            if(!howmuch) {
+                                message.reply("Failed to givein! input the correct number (howmuch to give)")
+                                return;
+                            }
+                            sendMoney(person, howmuch)
+                            message.reply("Succes give the money!")
+                            } else {
                             if(command == "ban") {
                             if(!isOwner(message.author.id)) {
                             message.reply("not a bot owner!")
@@ -318,7 +362,7 @@ message.reply(storeText)
                             });
                             message.reply(`${person} has unbanned from this bot!`)
                             } else {
-                            if(command == "wheel" || "roulette") {
+                            if(command == "roulette") {
                                 const { money } = require(databasePath)
                                 if(!DoAPayment('100000')) {
                                     message.reply("your money is not enough to spun the wheel!")
@@ -339,9 +383,8 @@ But if you did not get all number at above, youll lost 100000 (100K)
 The number is random. between 0 - 60
 
 **To play this use ${prefix}wheel go**`)
-                                    .setFooter("Roulette system")
                                 
-                                message.reply({ embeds: [exampleEmbed] });
+                                message.channel.send({ embeds: [exampleEmbed] });
                                 return;
                                 }
                             if(ready == "go") {
@@ -382,23 +425,7 @@ The number is random. between 0 - 60
                                 message.reply("get some error!")
                                 return;
                             }
-                            } else {
-                            const exampleEmbed = new MessageEmbed()
-                            .setTitle(`Wheel Spinner!`)
-                            .setDescription(`**Prize List**
-- If you get : 18, 36, 54, 23, 8
-You will get 300000 (300K)
-
-- If you get : 13, 1, 15, 30, 39
-You will get 350000 (350000)
-
-But if you did not get all number at above, youll lost 100000 (100K)
-The number is random. between 0 - 60
-
-**To play this use ${prefix}wheel go**`)
-                            .setFooter("Roulette system")
-                            
-                            message.reply({ embeds: [exampleEmbed] });
+                            }
                             }
                             }
                             }
